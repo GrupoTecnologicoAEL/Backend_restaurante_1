@@ -10,6 +10,7 @@ router.post('/', async (req, res) => {
             price: req.body.price,
             description: req.body.description,
             imageUrl: req.body.imageUrl,
+            stock: req.body.stock ,
             category: req.body.category
         });
         const savedProduct = await newProduct.save();
@@ -19,20 +20,20 @@ router.post('/', async (req, res) => {
     }
 });
 
-// Traer todos los productos
+// Traer todos los productos con categorías
 router.get('/', async (req, res) => {
     try {
-        const products = await Product.find();
+        const products = await Product.find().populate('category'); 
         res.json(products);
     } catch (error) {
         res.status(500).json({ message: error.message });
     }
 });
 
-// Traer producto por ID
+// Traer producto por ID con categoría
 router.get('/:id', async (req, res) => {
     try {
-        const product = await Product.findById(req.params.id);
+        const product = await Product.findById(req.params.id).populate('category');
         if (!product) return res.status(404).json({ message: 'Producto no encontrado' });
         res.json(product);
     } catch (error) {
