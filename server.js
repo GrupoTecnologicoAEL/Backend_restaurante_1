@@ -4,6 +4,7 @@ const cors = require('cors');
 const connectDB = require('./config/db'); 
 const productRoutes = require('./routers/products'); 
 const categoryRoutes = require('./routers/categoryRouter');
+const cartRoutes = require('./routers/cart_router.js')
 
 // Conectar a la base de datos
 connectDB();
@@ -16,8 +17,8 @@ app.use(cors());
 
 // Usar las rutas de productos
 app.use('/api/products', productRoutes);
-app.use('/api/categories', categoryRoutes); // Usa las rutas de categorías
-
+app.use('/api/categories', categoryRoutes); 
+app.use('/api/cart', cartRoutes);
 const PORT = process.env.PORT || 5002;
 app.listen(PORT, () => {
     console.log(`Servidor ejecutándose en el puerto ${PORT}`);
