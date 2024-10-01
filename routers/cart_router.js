@@ -1,6 +1,7 @@
 const express = require('express');
 const router = express.Router();
 const Cart = require('../models/cart'); // Modelo del carrito
+const Product = require('../models/product');  // Ajusta la ruta según la estructura de tu proyecto
 
 // Agregar producto al carrito
 router.post('/add', async (req, res) => {
@@ -37,13 +38,13 @@ try {
 
 // Ver el contenido del carrito
 router.get('/:userId', async (req, res) => {
-try {
+    try {
     const cart = await Cart.findOne({ userId: req.params.userId }).populate('products.productId');
     if (!cart) return res.status(404).json({ message: 'Carrito no encontrado' });
     res.json(cart);
-} catch (error) {
+    } catch (error) {
     res.status(500).json({ message: error.message });
-}
+    }
 });
 
 // Eliminar producto del carrito
@@ -62,6 +63,30 @@ try {
 } catch (error) {
     res.status(500).json({ message: error.message });
 }
+});
+router.put('/:userId/product/:productId', async (req, res) => {
+    try {
+    const { userId, productId } = req.params;
+    const { quantity } = req.body;
+
+    let cart = await Cart.findOne({ userId });
+
+    if (!cart) {
+        return res.status(404).json({ message: 'Carrito no encontrado' });
+    }
+
+    const productIndex = cart.products.findIndex(p => p.productId == productId);
+
+    if (productIndex > -1) {
+        cart.products[productIndex].quantity = quantity;
+        cart = await cart.save();
+        return res.status(200).json(cart);
+    } else {
+        return res.status(404).json({ message: 'Producto no encontrado en el carrito' });
+    }
+    } catch (error) {
+    res.status(500).json({ message: error.message });
+    }
 });
 
 module.exports = router;
