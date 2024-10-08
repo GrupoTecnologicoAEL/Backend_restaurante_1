@@ -34,11 +34,11 @@ router.post('/create', async (req, res) => {
 });
 router.get('/', async (req, res) => {
     try {
-        const orders = await Order.find(); // Encuentra todas las órdenes en la base de datos
+        const orders = await Order.find().populate('items.productId', 'name price'); // Hacer populate de los productos
         res.status(200).json(orders);
     } catch (error) {
         console.error('Error al obtener las órdenes:', error);
-        res.status(500).json({ message: error.message });
+        res.status(500).json({ message: 'Error al obtener las órdenes.' });
     }
 });
 
@@ -46,11 +46,48 @@ router.get('/', async (req, res) => {
 router.get('/user/:userId', async (req, res) => {
     try {
         const { userId } = req.params;
-        const orders = await Order.find({ userId }); // Encuentra todas las órdenes de un usuario específico
+        const orders = await Order.find({ userId }).populate('items.productId', 'name price'); // Ordenes por usuario
         res.status(200).json(orders);
     } catch (error) {
         console.error('Error al obtener las órdenes del usuario:', error);
-        res.status(500).json({ message: error.message });
+        res.status(500).json({ message: 'Error al obtener las órdenes del usuario.' });
+    }
+});
+// Obtener una orden específica por ID
+router.get('/:orderId', async (req, res) => {
+    try {
+        const { orderId } = req.params;
+        const order = await Order.findById(orderId).populate('items.productId', 'name price');
+
+        if (!order) {
+            return res.status(404).json({ message: 'Orden no encontrada.' });
+        }
+
+        res.status(200).json(order);
+    } catch (error) {
+        console.error('Error al obtener la orden:', error);
+        res.status(500).json({ message: 'Error al obtener la orden.' });
+    }
+});
+// Actualizar el estado de una orden
+router.put('/update-status/:id', async (req, res) => {
+    const orderId = req.params.id;
+    const { status } = req.body;
+
+    try {
+        const updatedOrder = await Order.findByIdAndUpdate(
+            orderId,
+            { status: status },
+            { new: true }
+        );
+
+        if (!updatedOrder) {
+            return res.status(404).json({ message: 'Pedido no encontrado' });
+        }
+
+        res.status(200).json(updatedOrder);
+    } catch (error) {
+        res.status(500).json({ message: 'Error al actualizar el estado del pedido', error });
     }
 });
 
