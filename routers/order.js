@@ -25,7 +25,7 @@ router.post('/create', async (req, res) => {
 
         // Limpiar el carrito después de crear la orden
         await Cart.findOneAndDelete({ userId });
-
+        //await notificationService.sendOrderNotification();
         res.status(201).json(savedOrder);
     } catch (error) {
         //console.error('Error al crear la orden:', error);
