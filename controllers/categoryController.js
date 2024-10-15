@@ -1,4 +1,5 @@
 const Category = require('../models/category'); // Importa el modelo de categoría
+const Product = require('../models/product');
 
 // Crear nueva categoría
 const createCategory = async (req, res) => {
@@ -35,6 +36,20 @@ const getCategoryById = async (req, res) => {
     }
 };
 
+// Verificar si una categoría tiene productos asociados
+const hasProducts = async (req, res) => {
+    try {
+        const products = await Product.find({ category: req.params.id });
+        if (products.length > 0) {
+            res.json({ hasProducts: true });
+        } else {
+            res.json({ hasProducts: false });
+        }
+    } catch (error) {
+        res.status(500).json({ message: 'Error verificando si la categoría tiene productos asociados' });
+    }
+};
+
 // Actualizar categoría
 const updateCategory = async (req, res) => {
     try {
@@ -45,9 +60,14 @@ const updateCategory = async (req, res) => {
     }
 };
 
-// Eliminar categoría
+// Eliminar categoría (solo si no tiene productos asociados)
 const deleteCategory = async (req, res) => {
     try {
+        const products = await Product.find({ category: req.params.id });
+        if (products.length > 0) {
+            return res.status(400).json({ message: 'No se puede eliminar la categoría porque tiene productos asociados' });
+        }
+
         await Category.findByIdAndDelete(req.params.id);
         res.json({ message: 'Categoría eliminada' });
     } catch (error) {
@@ -59,6 +79,7 @@ module.exports = {
     createCategory,
     getAllCategories,
     getCategoryById,
+    hasProducts,
     updateCategory,
     deleteCategory
 };

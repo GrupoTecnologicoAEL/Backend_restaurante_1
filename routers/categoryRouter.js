@@ -5,7 +5,8 @@ const {
     getAllCategories,
     getCategoryById,
     updateCategory,
-    deleteCategory
+    deleteCategory,
+    hasProducts
 } = require('../controllers/categoryController'); 
 
 // Crear nueva categoría
@@ -16,6 +17,9 @@ router.get('/', getAllCategories);
 
 // Obtener categoría por ID
 router.get('/:id', getCategoryById);
+
+// Verificar si una categoría tiene productos asociados
+router.get('/:id/hasProducts', hasProducts);
 
 // Actualizar categoría
 router.put('/:id', updateCategory);
